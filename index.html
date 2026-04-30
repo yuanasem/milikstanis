@@ -2,54 +2,69 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>AR Marker Custom HTTP</title>
+    <title>AR Marker Custom - Fixed</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-    <script src="https://cdn.rawgit.com/jeromeetienne/AR.js/2.2.1/aframe/build/aframe-ar.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    
     <style>
-      body { margin:0; overflow:hidden; }
+      body { margin: 0; overflow: hidden; }
       #instructions {
-        position: absolute; top:10px; left:10px;
-        background: rgba(0,0,0,0.6); color:white;
-        padding:8px; font-family:sans-serif; font-size:14px;
-        border-radius:5px; z-index: 999;
+        position: absolute; top: 10px; left: 10px;
+        background: rgba(0,0,0,0.7); color: white;
+        padding: 12px; font-family: sans-serif; font-size: 14px;
+        border-radius: 8px; z-index: 999;
+        pointer-events: none; /* Agar tidak menghalangi klik pada AR */
       }
     </style>
+
+    <script>
+      // PENTING: Registrasi komponen harus dilakukan SEBELUM <a-scene>
+      AFRAME.registerComponent('interactable', {
+        init: function () {
+          this.el.addEventListener('click', () => {
+            const currentColor = this.el.getAttribute('color');
+            const newColor = currentColor === '#FF0000' ? '#00FF00' : '#FF0000';
+            this.el.setAttribute('color', newColor);
+            console.log('Box diklik, warna berubah ke: ' + newColor);
+          });
+        }
+      });
+    </script>
   </head>
+
   <body>
     <div id="instructions">
-      Arahkan kamera laptop ke marker custom (mymarker.patt). Ketuk box merah untuk interaksi.
+      1. Izinkan akses kamera.<br>
+      2. Arahkan ke marker (mymark.patt).<br>
+      3. Ketuk kotak merah untuk interaksi.
     </div>
 
-    <a-scene embedded arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: true;">
-      
-      <!-- Marker custom -->
-      <a-marker type="pattern" url="mymark.patt">
-        <a-box id="medBox" position="0 0.25 0" rotation="0 45 0" color="#FF0000"
-               depth="0.3" height="0.3" width="0.3" shadow interactable>
-          <a-text value="Alat Medis" align="center" position="0 0.4 0" color="#FFFFFF" width="2"></a-text>
+    <a-scene 
+      embedded 
+      arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix;"
+      renderer="logarithmicDepthBuffer: true;"
+      cursor="fuse: false; rayOrigin: mouse"> <a-marker type="pattern" url="mymark.patt">
+        <a-box 
+          id="medBox" 
+          position="0 0.5 0" 
+          rotation="0 45 0" 
+          color="#FF0000"
+          depth="0.5" height="0.5" width="0.5" 
+          shadow 
+          interactable> <a-text 
+            value="Alat Medis" 
+            align="center" 
+            position="0 0.6 0" 
+            color="#FFFFFF" 
+            width="3">
+          </a-text>
         </a-box>
       </a-marker>
 
-      <!-- Kamera -->
       <a-entity camera></a-entity>
 
-      <!-- Lights -->
-      <a-light type="ambient" color="#FFFFFF" intensity="0.5"></a-light>
-      <a-light type="directional" position="0 4 2" intensity="1"></a-light>
-
-      <!-- Interaksi box -->
-      <script>
-        AFRAME.registerComponent('interactable', {
-          init: function () {
-            this.el.addEventListener('click', () => {
-              const currentColor = this.el.getAttribute('color');
-              const newColor = currentColor === '#FF0000' ? '#00FF00' : '#FF0000';
-              this.el.setAttribute('color', newColor);
-            });
-          }
-        });
-        document.querySelector('#medBox').setAttribute('interactable', '');
-      </script>
+      <a-light type="ambient" color="#BBB"></a-light>
+      <a-light type="directional" color="#FFF" intensity="0.6" position="-1 1 2"></a-light>
 
     </a-scene>
   </body>
